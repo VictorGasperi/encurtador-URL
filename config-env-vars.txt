@@ -1,0 +1,2 @@
+coloque as variaveis no .env
+rode export $(cat .env | xargs)
