@@ -10,7 +10,7 @@ resource "aws_ecr_repository" "us-ecr" {
 
 # Permissão para que a funcao lambda possa assumir uma role. Utiliza uma "Trust policy"
 resource "aws_iam_role" "lambda_exec_role" {
-  name = "lambda-role-${var.stage}"
+  name = "${var.project_name}-lambda-role-${var.stage}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -34,7 +34,7 @@ resource "aws_iam_role" "lambda_exec_role" {
 # Qual a role que o lambda vai assumir. Utiliza uma "IAM policy"
 
 resource "aws_iam_policy" "lambda_policy" {
-  name = "lambda-policy-${var.stage}"
+  name = "${var.project_name}-lambda-policy-${var.stage}"
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -74,7 +74,7 @@ resource "aws_iam_role_policy_attachment" "lambda_attach" {
 # Criacao da funcao lambda
 
 resource "aws_lambda_function" "app" {
-  function_name = "url-shortener-lambda-${var.stage}"
+  function_name = "${var.project_name}-lambda-${var.stage}"
   role          = aws_iam_role.lambda_exec_role.arn
   package_type  = "Image"
   image_uri     = var.lambda_image_uri
@@ -85,4 +85,26 @@ resource "aws_lambda_function" "app" {
     Project = var.project_name
     Stage = var.stage
   }
+}
+
+resource "aws_dynamodb_table" "database" {
+  name           = "${var.project_name}-dynamodb-${var.stage}"
+  billing_mode   = "PAY_PER_REQUEST"
+  hash_key       = "code"
+
+  attribute {
+    name = "code"
+    type = "S"
+  }
+
+  ttl {
+    attribute_name = "TTL"
+    enabled        = true
+  }
+
+  tags = {
+    Project = var.project_name
+    Stage = var.stage
+  }
+  
 }
