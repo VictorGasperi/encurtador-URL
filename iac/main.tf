@@ -45,7 +45,7 @@ resource "aws_iam_policy" "lambda_policy" {
           "dynamodb:GetItem",
           "dynamodb:PutItem"
         ],
-        Resource = "arn:aws:dynamodb:us-east-1:123456789012:table/url-shortener-table-${var.stage}"
+        Resource = "arn:aws:dynamodb:us-east-2:654654550393:table/${var.project_name}-dynamodb-${var.stage}"
       },
       {
         Effect = "Allow",
@@ -123,6 +123,7 @@ resource "aws_apigatewayv2_integration" "apigw-lambda" {
   integration_type      = "AWS_PROXY"
   integration_method    = "POST"
   integration_uri       = aws_lambda_function.lambda-app.invoke_arn
+  payload_format_version = "2.0"
 }
 
 resource "aws_apigatewayv2_route" "decouple-apigw-routes" {
