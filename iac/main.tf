@@ -73,7 +73,7 @@ resource "aws_iam_role_policy_attachment" "lambda_attach" {
 
 # Criacao da funcao lambda
 
-resource "aws_lambda_function" "app" {
+resource "aws_lambda_function" "lambda-app" {
   function_name = "${var.project_name}-lambda-${var.stage}"
   role          = aws_iam_role.lambda_exec_role.arn
   package_type  = "Image"
@@ -106,5 +106,47 @@ resource "aws_dynamodb_table" "database" {
     Project = var.project_name
     Stage = var.stage
   }
-  
+
+}
+
+resource "aws_apigatewayv2_api" "apigw" {
+  name          = "${var.project_name}-apigwv2-${var.stage}"
+  protocol_type = "HTTP"
+  tags = {
+    Project = var.project_name
+    Stage = var.stage
+  }
+}
+
+resource "aws_apigatewayv2_integration" "apigw-lambda" {
+  api_id                = aws_apigatewayv2_api.apigw.id
+  integration_type      = "AWS_PROXY"
+  integration_method    = "POST"
+  integration_uri       = aws_lambda_function.lambda-app.invoke_arn
+}
+
+resource "aws_apigatewayv2_route" "decouple-apigw-routes" {
+  api_id    = aws_apigatewayv2_api.apigw.id
+  route_key = "ANY /{proxy+}"
+  target = "integrations/${aws_apigatewayv2_integration.apigw-lambda.id}"
+}
+
+resource "aws_apigatewayv2_stage" "apigw-deploy" {
+  api_id = aws_apigatewayv2_api.apigw.id
+  name   = var.stage
+  auto_deploy = true
+  tags = {
+    Project = var.project_name
+    Stage = var.stage
+  }
+}
+
+# Permissão para que o APIGW invoque o lambda
+
+resource "aws_lambda_permission" "allow-apigw-lambda" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda-app.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.apigw.execution_arn}/*/*"
 }
