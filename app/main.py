@@ -10,8 +10,6 @@ app = FastAPI(
 @app.get('', include_in_schema=False)
 @app.get("/")
 async def root(request: Request):
-    print('A MAGIA DO PRINT. AQUI ESTÁ A REQUEST:  ')
-    print(request)
-    return {"message": "Lambda container funcionando!"}
+    return {"message": "COLOQUEI ALGO DIFERENTE"}
 
 handler = Mangum(app, lifespan="off", api_gateway_base_path='/test')
