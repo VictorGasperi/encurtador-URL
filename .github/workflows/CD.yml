@@ -66,14 +66,14 @@ jobs:
 
           if [ -n "$ECR_OUTPUT" ] && [ "$ECR_OUTPUT" != "None" ]; then
             echo "✅ Repositório já existe: $ECR_OUTPUT"
-            echo "REPO_URL=$ECR_OUTPUT" >> $GITHUB_OUTPUT
+            echo "repo_url=$ECR_OUTPUT" >> $GITHUB_OUTPUT
           else
             echo "🚧 Repositório não encontrado. Criando..."
             cd iac
             terraform apply -target="aws_ecr_repository.us-ecr" -var="lambda_image_uri=dummy" -auto-approve
-            NEW_REPO_URL=$(terraform output -raw ecr-URL)
+            NEW_REPO_URL=$(terraform output -raw repository_url)
             echo "✅ Repositório criado: $NEW_REPO_URL"
-            echo "repo_url=$REPO_URL" >> $GITHUB_OUTPUT
+            echo "repo_url=$NEW_REPO_URL" >> $GITHUB_OUTPUT
           fi
 
       - name: Criar o ambiente do container
@@ -89,7 +89,10 @@ jobs:
 
       - name: Conectar ao ECR
         run: |
-          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${REPO_URL%%/*}
+          REPO_URL="${{ steps.ecr.outputs.repo_url }}"
+          REPO_HOST="${REPO_URL%%/*}"
+
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_HOST
 
       - name: Subir a imagem
         run: |
