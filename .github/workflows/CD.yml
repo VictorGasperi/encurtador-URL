@@ -21,7 +21,6 @@ jobs:
       - name: Clonar repositório
         uses: actions/checkout@v4
 
-
       - name: Configurações do deploy
         run: |
           echo "📦 NOME DO PROJETO -> $(basename "$GITHUB_REPOSITORY")"
@@ -39,7 +38,6 @@ jobs:
         with:
           terraform_version: 1.12.2
 
-
       - name: Validar a instalação do Terraform
         run: |
           cd iac
@@ -52,24 +50,73 @@ jobs:
           aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
           aws configure set default.region "$AWS_REGION"
           echo "✅ Login efetuado!"
-        
+
       - name: Subir o ECR
+        id: ecr
         run: |
-          echo "🔍 Verificando se o repositório $REPO_NAME existe..."
+          REPO_NAME=$(basename "$GITHUB_REPOSITORY")
+          echo "🔍 Verificando se o ECR '$REPO_NAME' existe..."
 
-          ECR_OUTPUT=$(aws ecr describe-repositories --repository-names "$REPO_NAME" --region "$AWS_REGION" --query "repositories[0].repositoryUri" --output text 2>/dev/null)
+          ECR_OUTPUT=$(aws ecr describe-repositories \
+            --repository-names "$REPO_NAME" \
+            --region "$AWS_REGION" \
+            --query "repositories[0].repositoryUri" \
+            --output text 2>/dev/null)
 
-          if [ $? -eq 0 ]; then
-            echo "REPO_URL=$ECR_OUTPUT" >> $GITHUB_ENV
-            echo "✅ Repositório já existe."
+          if [ -n "$ECR_OUTPUT" ] && [ "$ECR_OUTPUT" != "None" ]; then
+            echo "✅ Repositório já existe: $ECR_OUTPUT"
+            echo "repo_url=$ECR_OUTPUT" >> $GITHUB_OUTPUT
           else
-            echo "Repositório não encontrado. Criando..."
+            echo "🚧 Repositório não encontrado. Criando..."
             cd iac
-            terraform apply -target="aws_ecr_repository.us-ecr" -var"lambda_image_uri=dummy" -auto-approve
-            echo "REPO_URL=$(terraform output -raw ecr_repository_url)" >> $GITHUB_ENV
-            echo "✅ Repositório criado."
+            terraform apply -target="aws_ecr_repository.us-ecr" -var="lambda_image_uri=dummy" -auto-approve
+            NEW_REPO_URL=$(terraform output -raw repository_url)
+            echo "✅ Repositório criado: $NEW_REPO_URL"
+            echo "repo_url=$NEW_REPO_URL" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Criar o ambiente do container
+        run: |
+          cd app
+          echo "stage=$(basename "$GITHUB_REF")" >> .env
+          echo "✅ Ambiente criado."
 
       - name: Criar a imagem do container
         run: |
-          docker build --platform linux/amd64 -t $REPO_URL:$(basename "$GITHUB_REF") .
+          docker build --platform linux/amd64 -t ${{ steps.ecr.outputs.repo_url }}:$(basename "$GITHUB_REF") .
           echo "✅ Imagem criada."
+
+      - name: Conectar ao ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${REPO_URL%%/*}
+
+      - name: Subir a imagem
+        run: |
+          docker push ${{ steps.ecr.outputs.repo_url }}:$(basename "$GITHUB_REF")
+          echo "✅ Upload da imagem concluído."
+
+      - name: Recuperar digest da imagem no ECR
+        id: digest
+        run: |
+          STAGE=$(basename "$GITHUB_REF")
+          REPO_NAME=$(basename "$GITHUB_REPOSITORY")
+          DIGEST=$(aws ecr describe-images \
+            --repository-name "$REPO_NAME" \
+            --region "$AWS_REGION" \
+            --query "imageDetails[?contains(imageTags, \`$STAGE\`)].imageDigest" \
+            --output text 2>/dev/null)
+
+          if [ -n "$DIGEST" ]; then
+            echo "✅ Digest recuperado com sucesso: $DIGEST"
+            echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Digest não encontrado para a tag '$STAGE'"
+            exit 1
+          fi
+
+      - name: Criar infraestrutura com Terraform
+        run: |
+          cd iac
+          terraform apply -var="lambda_image_uri=${{ steps.ecr.outputs.repo_url }}@${{ steps.digest.outputs.digest }}" -auto-approve
+          echo "✅ Infra criada"
+          echo "API INVOKE URL ---> $(terraform output -raw invoke_url)"
