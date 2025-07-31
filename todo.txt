@@ -1,5 +1,1 @@
-Configurar DynamoDB
-Configurar APIGW
-Construir CI para integracao na branch dev
-Construir CD para deploy na branch homol
-Construir classes abstratas e comecar a trabalhar no dominio da aplicacao
+Fazer com que o CD crie um .env com o $GITHUB_ENV dentro de app antes da build da imagem do container

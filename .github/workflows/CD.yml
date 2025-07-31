@@ -1,0 +1,75 @@
+name: CD
+
+on: 
+  push:
+    branches:
+      - prod
+  workflow_dispatch:
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  GITHUB_REPOSITORY: ${{ github.repository }}
+  GITHUB_REF: ${{ github.ref }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositório
+        uses: actions/checkout@v4
+
+
+      - name: Configurações do deploy
+        run: |
+          echo "📦 NOME DO PROJETO -> $(basename "$GITHUB_REPOSITORY")"
+          echo "🌿 STAGE DE DEPLOY -> $(basename "$GITHUB_REF")"
+          echo "🌍 REGIÃO DE DEPLOY -> $AWS_REGION"
+
+      - name: Definir as variáveis do Terraform
+        run: |
+          echo "TF_VAR_aws_region=$AWS_REGION" >> $GITHUB_ENV
+          echo "TF_VAR_project_name=$(basename "$GITHUB_REPOSITORY")" >> $GITHUB_ENV
+          echo "TF_VAR_stage=$(basename "$GITHUB_REF")" >> $GITHUB_ENV
+
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.12.2
+
+
+      - name: Validar a instalação do Terraform
+        run: |
+          cd iac
+          terraform init
+          echo "✅ Terraform instalado com sucesso!"
+
+      - name: Fazer login na AWS
+        run: |
+          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+          aws configure set default.region "$AWS_REGION"
+          echo "✅ Login efetuado!"
+        
+      - name: Subir o ECR
+        run: |
+          echo "🔍 Verificando se o repositório $REPO_NAME existe..."
+
+          ECR_OUTPUT=$(aws ecr describe-repositories --repository-names "$REPO_NAME" --region "$AWS_REGION" --query "repositories[0].repositoryUri" --output text 2>/dev/null)
+
+          if [ $? -eq 0 ]; then
+            echo "REPO_URL=$ECR_OUTPUT" >> $GITHUB_ENV
+            echo "✅ Repositório já existe."
+          else
+            echo "Repositório não encontrado. Criando..."
+            cd iac
+            terraform apply -target="aws_ecr_repository.us-ecr" -var"lambda_image_uri=dummy" -auto-approve
+            echo "REPO_URL=$(terraform output -raw ecr_repository_url)" >> $GITHUB_ENV
+            echo "✅ Repositório criado."
+
+      - name: Criar a imagem do container
+        run: |
+          docker build --platform linux/amd64 -t $REPO_URL:$(basename "$GITHUB_REF") .
+          echo "✅ Imagem criada."

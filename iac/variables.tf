@@ -8,16 +8,6 @@ variable "aws_region" {
   description = "Regiao de deploy"
 }
 
-variable "aws_access_key" {
-  type = string
-  description = "Chave de acesso"
-}
-
-variable "aws_secret_key" {
-  type = string
-  description = "Chave de segredo"
-}
-
 variable "project_name" {
   type        = string
   description = "Nome base do projeto"
