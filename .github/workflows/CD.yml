@@ -84,7 +84,6 @@ jobs:
       - name: Subir a imagem
         run: |
           TAG=${{ steps.image.outputs.tag }}
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
           docker push ${{ steps.ecr.outputs.repo_url }}:$TAG
           echo "✅ Upload da imagem concluído."
 
