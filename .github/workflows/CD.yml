@@ -54,14 +54,15 @@ jobs:
       - name: Subir o ECR
         id: ecr
         run: |
-          REPO_NAME=$(basename "$GITHUB_REPOSITORY")
+          # Extrair nome do repositório e converter para minúsculo
+          REPO_NAME=$(basename "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')
           echo "🔍 Verificando se o ECR '$REPO_NAME' existe..."
 
           ECR_OUTPUT=$(aws ecr describe-repositories \
             --repository-names "$REPO_NAME" \
             --region "$AWS_REGION" \
             --query "repositories[0].repositoryUri" \
-            --output text 2>/dev/null)
+            --output text 2>/dev/null) || true
 
           if [ -n "$ECR_OUTPUT" ] && [ "$ECR_OUTPUT" != "None" ]; then
             echo "✅ Repositório já existe: $ECR_OUTPUT"
