@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-root = '/' + os.environ.get('TF_VAR_stage')
+root = '/' + os.environ.get('stage')
 
 app = FastAPI(
     root_path=root
