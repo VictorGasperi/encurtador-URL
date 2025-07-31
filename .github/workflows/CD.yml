@@ -80,21 +80,24 @@ jobs:
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_HOST
 
       - name: Subir a imagem
+        id: image
         run: |
-          docker push ${{ steps.ecr.outputs.repo_url }}:$(basename "$GITHUB_REF")
+          TAG="$(basename "$GITHUB_REF")-$(date +%s)"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          docker push ${{ steps.ecr.outputs.repo_url }}:$TAG
           echo "✅ Upload da imagem concluído."
 
       - name: Recuperar digest da imagem no ECR
         id: digest
         run: |
-          STAGE=$(basename "$GITHUB_REF")
+          TAG=${{ steps.image.outputs.tag }}
           REPO_URL="${{ steps.ecr.outputs.repo_url }}"
           REPO_NAME=$(basename "$REPO_URL")
               
           DIGEST=$(aws ecr describe-images \
             --repository-name "$REPO_NAME" \
             --region "$AWS_REGION" \
-            --query "imageDetails[?contains(imageTags, \`$STAGE\`)].imageDigest" \
+            --query "imageDetails[?contains(imageTags, \`$TAG\`)].imageDigest" \
             --output text 2>/dev/null)
               
           if [ -n "$DIGEST" ]; then
