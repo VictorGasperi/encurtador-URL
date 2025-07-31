@@ -71,6 +71,7 @@ jobs:
         id: image 
         run: |
           TAG="$(basename "$GITHUB_REF")-$(date +%s)"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
           docker build --platform linux/amd64 -t ${{ steps.ecr.outputs.repo_url }}:$TAG .
           echo "✅ Imagem criada."
 
