@@ -66,14 +66,14 @@ jobs:
 
           if [ -n "$ECR_OUTPUT" ] && [ "$ECR_OUTPUT" != "None" ]; then
             echo "✅ Repositório já existe: $ECR_OUTPUT"
-            echo "repo_url=$ECR_OUTPUT" >> $GITHUB_OUTPUT
+            echo "REPO_URL=$ECR_OUTPUT" >> $GITHUB_OUTPUT
           else
             echo "🚧 Repositório não encontrado. Criando..."
             cd iac
             terraform apply -target="aws_ecr_repository.us-ecr" -var="lambda_image_uri=dummy" -auto-approve
             NEW_REPO_URL=$(terraform output -raw ecr-URL)
             echo "✅ Repositório criado: $NEW_REPO_URL"
-            echo "repo_url=$NEW_REPO_URL" >> $GITHUB_OUTPUT
+            echo "repo_url=$REPO_URL" >> $GITHUB_OUTPUT
           fi
 
       - name: Criar o ambiente do container
