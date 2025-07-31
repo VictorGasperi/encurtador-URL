@@ -100,16 +100,17 @@ jobs:
           echo "✅ Upload da imagem concluído."
 
       - name: Recuperar digest da imagem no ECR
-        id: digest
         run: |
           STAGE=$(basename "$GITHUB_REF")
-          REPO_NAME=$(basename "$GITHUB_REPOSITORY")
+          REPO_URL="${{ steps.ecr.outputs.repo_url }}"
+          REPO_NAME=$(basename "$REPO_URL")
+              
           DIGEST=$(aws ecr describe-images \
-            --repository-name "${{ steps.ecr.outputs.repo_url }}" \
+            --repository-name "$REPO_NAME" \
             --region "$AWS_REGION" \
             --query "imageDetails[?contains(imageTags, \`$STAGE\`)].imageDigest" \
             --output text 2>/dev/null)
-
+              
           if [ -n "$DIGEST" ]; then
             echo "✅ Digest recuperado com sucesso: $DIGEST"
             echo "digest=$DIGEST" >> $GITHUB_OUTPUT
