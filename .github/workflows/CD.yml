@@ -105,7 +105,7 @@ jobs:
           STAGE=$(basename "$GITHUB_REF")
           REPO_NAME=$(basename "$GITHUB_REPOSITORY")
           DIGEST=$(aws ecr describe-images \
-            --repository-name "$REPO_NAME" \
+            --repository-name "${{ steps.ecr.outputs.repo_url }}" \
             --region "$AWS_REGION" \
             --query "imageDetails[?contains(imageTags, \`$STAGE\`)].imageDigest" \
             --output text 2>/dev/null)
