@@ -23,14 +23,14 @@ jobs:
 
       - name: Configurações do deploy
         run: |
-          echo "📦 NOME DO PROJETO -> $(basename "$GITHUB_REPOSITORY")"
+          echo "📦 NOME DO PROJETO -> $(basename "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')"
           echo "🌿 STAGE DE DEPLOY -> $(basename "$GITHUB_REF")"
           echo "🌍 REGIÃO DE DEPLOY -> $AWS_REGION"
 
       - name: Definir as variáveis do Terraform
         run: |
           echo "TF_VAR_aws_region=$AWS_REGION" >> $GITHUB_ENV
-          echo "TF_VAR_project_name=$(basename "$GITHUB_REPOSITORY")" >> $GITHUB_ENV
+          echo "TF_VAR_project_name=$(basename "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
           echo "TF_VAR_stage=$(basename "$GITHUB_REF")" >> $GITHUB_ENV
 
       - name: Instalar Terraform
