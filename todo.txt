@@ -1,1 +1,1 @@
-entender o pq q quando dou deploy enquanto os recursos estao criados, nao recupera o digest da imagem
+Comecar o modulo
