@@ -1,1 +1,1 @@
-Fazer com que o CD crie um .env com o $GITHUB_ENV dentro de app antes da build da imagem do container
+entender o pq q quando dou deploy enquanto os recursos estao criados, nao recupera o digest da imagem
