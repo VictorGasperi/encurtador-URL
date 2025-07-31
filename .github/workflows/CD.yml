@@ -125,4 +125,4 @@ jobs:
           cd iac
           terraform apply -var="lambda_image_uri=${{ steps.ecr.outputs.repo_url }}@${{ steps.digest.outputs.digest }}" -auto-approve
           echo "✅ Infra criada"
-          echo "API INVOKE URL ---> $(terraform output -raw invoke_url)"
+          echo "API INVOKE URL ---> $(terraform output -raw api-link)"
