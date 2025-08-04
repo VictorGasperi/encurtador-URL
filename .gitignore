@@ -1,5 +1,8 @@
 .env
+.env.*
 venv
+__pycache__
+__pycache__/*
 
 # Diretórios e arquivos do Terraform
 .terraform/

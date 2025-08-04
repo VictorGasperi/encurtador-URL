@@ -1,7 +1,7 @@
 from abc import ABC
 
 
-class ShortURL(ABC):
+class ShortUrl(ABC):
     code: str
     original_url: str
 
@@ -16,6 +16,6 @@ class ShortURL(ABC):
         }
     
     def __eq__(self, value):
-        if not isinstance(value, ShortURL):
+        if not isinstance(value, ShortUrl):
             return False
         return self.__dict__ == value.__dict__
