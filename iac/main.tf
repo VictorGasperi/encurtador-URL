@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "us-ecr" {
-  name                 = "${var.project_name}-ecr"
+  name                 = "${var.project_name}-ecr-${var.stage}"
   image_tag_mutability = "MUTABLE"
   force_delete = true
   tags = {
