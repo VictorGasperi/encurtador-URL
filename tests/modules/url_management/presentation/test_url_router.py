@@ -10,8 +10,6 @@ class TestUrlRouter:
         self.app.include_router(url_router, prefix='/url')
         self.client = TestClient(self.app)
 
-    # TODO: definir .env e continuar testando
-
     def test_shorten_route(self):
         response = self.client.post(
             "/url/shorten",

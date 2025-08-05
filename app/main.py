@@ -4,7 +4,7 @@ from mangum import Mangum
 from app.modules.url_management.presentation import url_router
 from app.shared.environments import Environments
 
-root = Environments.get_envs().stage
+root = Environments.get_envs().stage.value
 
 base_path = '/' + root
 app = FastAPI(root_path=base_path)
