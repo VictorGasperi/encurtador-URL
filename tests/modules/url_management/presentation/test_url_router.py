@@ -1,15 +1,16 @@
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-import pytest
-
-from app.modules.url_management.presentation.url_router import url_router
-
-class TestUrlRouter():
 
 
-    app = FastAPI()
-    app.include_router(url_router, prefix='/url')
-    client = TestClient(app)
+class TestUrlRouter:
+
+    def setup_method(self):
+        from app.modules.url_management.presentation.url_router import url_router
+        self.app = FastAPI()
+        self.app.include_router(url_router, prefix='/url')
+        self.client = TestClient(self.app)
+
+    # TODO: definir .env e continuar testando
 
     def test_shorten_route(self):
         response = self.client.post(
