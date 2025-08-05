@@ -41,7 +41,8 @@ class Environments:
             from app.modules.url_management.infrastructure.repositories.url_repository_mock import UrlRepositoryMock
             return UrlRepositoryMock
         elif Environments.get_envs().stage in [STAGE.dev, STAGE.homol, STAGE.prod]:
-            print('a')
+            from app.modules.url_management.infrastructure.repositories.url_repository_dynamo import UrlRepositoryDynamo
+            return UrlRepositoryDynamo
         else:
             raise Exception('Nenhum repositorio encontrado para esse ambiente')
 
