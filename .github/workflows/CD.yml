@@ -65,19 +65,22 @@ jobs:
             echo "repo_url=$NEW_REPO_URL" >> $GITHUB_OUTPUT
 
 
-      - name: Criar o ambiente do container
-        run: |
-          cd app
-          echo "STAGE=$(basename "$GITHUB_REF")" >> .env
-          echo "DYNAMO_TABLE_NAME=$TF_VAR_project_name-dynamodb-$TF_VAR_stage" >> .env
-          echo "✅ Ambiente criado."
+      # - name: Criar o ambiente do container
+      #   run: |
+      #     cd app
+      #     echo "STAGE=$(basename "$GITHUB_REF")" >> .env
+      #     echo "DYNAMO_TABLE_NAME=$TF_VAR_project_name-dynamodb-$TF_VAR_stage" >> .env
+      #     echo "✅ Ambiente criado."
 
       - name: Criar a imagem do container
         id: image 
         run: |
           TAG="$(basename "$GITHUB_REF")-$(date +%s)"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
-          docker build --platform linux/amd64 -t ${{ steps.ecr.outputs.repo_url }}:$TAG .
+          docker build \
+              --build-arg STAGE=$(basename "$GITHUB_REF") \
+              --build-arg DYNAMO_TABLE_NAME=$TF_VAR_project_name-dynamodb-$TF_VAR_stage \
+              --platform linux/amd64 -t ${{ steps.ecr.outputs.repo_url }}:$TAG .
           echo "✅ Imagem criada."
 
       - name: Conectar ao ECR
