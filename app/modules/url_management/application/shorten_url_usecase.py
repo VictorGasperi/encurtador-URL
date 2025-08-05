@@ -11,7 +11,7 @@ class ShortenUrlUsecase():
 
     def __call__(self, original_url: str) -> ShortUrl:
 
-        if original_url is '' or original_url is None:
+        if original_url == '' or original_url is None:
             raise InvalidUrlException(original_url)
 
         code = generate_random_code(6)
