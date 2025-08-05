@@ -10,11 +10,11 @@ class ShortenUrlHandler():
 
     def __call__(self, body: dict):
         try:
-            response = self.usecase(body.get("original_url"))
-            return {
-                "original_url": response.original_url,
-                "code": response.code
-            }
+            url = body.get("original_url")
+            ttl = body.get("ttl")
+
+            response = self.usecase(url, ttl)
+            return response.to_dict()
         except InvalidUrlException as e:
             raise HTTPException(status_code=422, detail=str(e))
         except UrlNotFoundException as e:

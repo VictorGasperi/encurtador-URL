@@ -22,6 +22,21 @@ class TestUrlRouter:
         data = response.json()
         assert len(data.get('code')) == 6
 
+    def test_shorten_route_with_ttl(self):
+        response = self.client.post(
+                    "/url/shorten",
+                    json = {
+                        "original_url": "exeplo_de_url",
+                        "ttl": 3600
+                    }
+                )
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data.get('code')) == 6
+        assert 'ttl' in data
+        assert 'created_at' in data
+
     def test_shorten_route_invalid_url(self):
         response = self.client.post(
             "/url/shorten",

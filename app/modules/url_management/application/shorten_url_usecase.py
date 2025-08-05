@@ -1,3 +1,4 @@
+from typing import Optional
 from app.modules.url_management.domain.entities.short_url import ShortUrl
 from app.modules.url_management.domain.repositories.url_repository import IUrlRepository
 from app.modules.url_management.domain.exceptions import InvalidUrlException
@@ -9,7 +10,7 @@ class ShortenUrlUsecase():
     def __init__(self, url_repository: IUrlRepository):
         self.url_repository = url_repository
 
-    def __call__(self, original_url: str) -> ShortUrl:
+    def __call__(self, original_url: str, ttl: Optional[int] = None) -> ShortUrl:
 
         if original_url == '' or original_url is None:
             raise InvalidUrlException(original_url)
@@ -18,6 +19,6 @@ class ShortenUrlUsecase():
         while self.url_repository.code_exists(code):
             code = generate_random_code(6)
 
-        short_url = ShortUrl(code, original_url)
+        short_url = ShortUrl(code, original_url, ttl=ttl)
         self.url_repository.create_url(short_url)
         return short_url
