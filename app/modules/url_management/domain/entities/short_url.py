@@ -1,5 +1,6 @@
 from abc import ABC
 from datetime import datetime, timedelta, timezone
+import time
 from typing import Optional
 
 
@@ -13,7 +14,7 @@ class ShortUrl(ABC):
         self.code = code
         self.original_url = original_url
         self.created_at = datetime.now(timezone(timedelta(hours=-3)))
-        self.ttl = ttl
+        self.ttl = (int(time.time()) + ttl) if ttl is not None else None
 
     def to_dict(self):
         item = {

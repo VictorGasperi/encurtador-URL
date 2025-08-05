@@ -12,7 +12,16 @@ class TestShortenUrlUsecase():
         response = usecase('test.shorten')
         assert response.original_url == 'test.shorten'
         assert len(response.code) == 6
+        assert response.ttl == None
 
+    def test_shorten_url_usecase_with_ttl(self):
+        repo = UrlRepositoryMock()
+        usecase = ShortenUrlUsecase(repo)
+
+        response = usecase('exemplo.com', 3600)
+        assert response.original_url == 'exemplo.com'
+        assert response.ttl != None
+    
     def test_shorten_url_usecase_invalid_url(self):
         repo = UrlRepositoryMock()
         usecase = ShortenUrlUsecase(repo)

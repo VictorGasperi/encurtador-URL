@@ -9,11 +9,11 @@ router = APIRouter()
 
 url_repository = Environments.get_url_repository()()
 shorten_url_usecase = ShortenUrlUsecase(url_repository)
-shorten_url_controller = ShortenUrlHandler(shorten_url_usecase)
+shorten_url_handler = ShortenUrlHandler(shorten_url_usecase)
 
 @router.post("/shorten")
 async def shorten_url(request: Request):
     raw_body = await request.body()
     body = json.loads(raw_body.decode())
-    response = shorten_url_controller(body)
+    response = shorten_url_handler(body)
     return response

@@ -21,6 +21,22 @@ class TestShortenUrlHandler():
         assert response.get('original_url') == body.get('original_url')
         assert len(response.get('code')) == 6
 
+    def test_shorten_url_handler_with_ttl(self):
+        repo = UrlRepositoryMock()
+        usecase = ShortenUrlUsecase(repo)
+        handler = ShortenUrlHandler(usecase)
+
+        body = {
+            "original_url": "test-123",
+            "ttl": 3600
+        }
+
+        response = handler(body)
+
+        assert response.get('original_url') == body.get('original_url')
+        assert len(response.get('code')) == 6
+        assert 'ttl' in response
+
     def test_shorten_url_handler_invalid_url(self):
         repo = UrlRepositoryMock()
         usecase = ShortenUrlUsecase(repo)
