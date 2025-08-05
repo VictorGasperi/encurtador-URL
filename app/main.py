@@ -10,9 +10,13 @@ base_path = '/' + root
 app = FastAPI(root_path=base_path)
 
 @app.get('', include_in_schema=False)
-async def fastapi_lambda_workaround(): return {}
+@app.get('/health')
+async def health():
+    return {
+        "message": "API Running!",
+        "base_path": base_path    
+    }
 
 app.include_router(router, prefix='/url')
-
 
 handler = Mangum(app, lifespan="off", api_gateway_base_path=base_path)
