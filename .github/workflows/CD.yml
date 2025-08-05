@@ -68,7 +68,8 @@ jobs:
       - name: Criar o ambiente do container
         run: |
           cd app
-          echo "stage=$(basename "$GITHUB_REF")" >> .env
+          echo "STAGE=$(basename "$GITHUB_REF")" >> .env
+          echo "DYNAMO_TABLE_NAME=$TF_VAR_project_name-dynamodb-$TF_VAR_stage" >> .env
           echo "✅ Ambiente criado."
 
       - name: Criar a imagem do container
