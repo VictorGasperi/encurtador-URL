@@ -12,12 +12,11 @@ class STAGE(Enum):
 class Environments:
 
     stage: STAGE
-    region: str
     dynamo_table_name: str
 
     def _configure_local(self):
         from dotenv import load_dotenv
-        load_dotenv(dotenv_path='./app/.env')
+        load_dotenv()
         os.environ["STAGE"] = os.environ.get("STAGE") or STAGE.test.value
 
 
@@ -30,9 +29,8 @@ class Environments:
 
         if self.stage == STAGE.test:
             self.region = 'us-east-1'
-            self.dynamo_table_name = 'local-dybnamo-table'
+            self.dynamo_table_name = 'local-dynamo-table'
         else:
-            self.region = os.environ.get("AWS_REGION")
             self.dynamo_table_name = os.environ.get("DYNAMO_TABLE_NAME")
 
     @staticmethod
@@ -50,4 +48,7 @@ class Environments:
     def get_envs() -> "Environments":
         envs = Environments()
         envs.load_envs()
+        print('A MAGIA DO PRINT!!!!!!')
+        print(Environments.get_envs().stage)
+        print(Environments.get_envs().dynamo_table_name)
         return envs
