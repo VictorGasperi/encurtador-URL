@@ -14,7 +14,6 @@ class Environments:
     stage: STAGE
     region: str
     dynamo_table_name: str
-    dynamo_partition_key: str
 
     def _configure_local(self):
         from dotenv import load_dotenv
@@ -32,11 +31,9 @@ class Environments:
         if self.stage == STAGE.test:
             self.region = 'us-east-1'
             self.dynamo_table_name = 'local-dybnamo-table'
-            self.dynamo_partition_key = 'PK'
         else:
             self.region = os.environ.get("AWS_REGION")
             self.dynamo_table_name = os.environ.get("DYNAMO_TABLE_NAME")
-            self.dynamo_partition_key = os.environ.get("DYNAMO_PARTITION_KEY")
 
     @staticmethod
     def get_url_repository() -> IUrlRepository:

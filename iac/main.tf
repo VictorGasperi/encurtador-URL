@@ -90,10 +90,10 @@ resource "aws_lambda_function" "lambda-app" {
 resource "aws_dynamodb_table" "database" {
   name           = "${var.project_name}-dynamodb-${var.stage}"
   billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "code"
+  hash_key       = "PK"
 
   attribute {
-    name = "code"
+    name = "PK"
     type = "S"
   }
 
