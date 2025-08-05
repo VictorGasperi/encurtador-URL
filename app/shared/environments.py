@@ -48,6 +48,6 @@ class Environments:
         envs = Environments()
         envs.load_envs()
         print('A MAGIA DO PRINT!!!!!!')
-        print(envs.stage)
+        print(envs.stage.value)
         print(envs.dynamo_table_name)
         return envs

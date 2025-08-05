@@ -5,9 +5,9 @@ from fastapi.testclient import TestClient
 class TestUrlRouter:
 
     def setup_method(self):
-        from app.modules.url_management.presentation.url_router import url_router
+        from app.modules.url_management.presentation.url_router import router
         self.app = FastAPI()
-        self.app.include_router(url_router, prefix='/url')
+        self.app.include_router(router, prefix='/url')
         self.client = TestClient(self.app)
 
     def test_shorten_route(self):
