@@ -50,4 +50,5 @@ class Environments:
         print('A MAGIA DO PRINT!!!!!!')
         print(envs.stage.value)
         print(envs.dynamo_table_name)
+        print('ESTIVE AQUI')
         return envs
