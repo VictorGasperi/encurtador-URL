@@ -4,9 +4,9 @@ from mangum import Mangum
 from app.modules.url_management.presentation import url_router
 from app.shared.environments import Environments
 
-stage = Environments.get_envs().stage
+root = Environments.get_envs().stage
 
-base_path = '/' + stage
+base_path = '/' + root
 app = FastAPI(root_path=base_path)
 
 @app.get('', include_in_schema=False)

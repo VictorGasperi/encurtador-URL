@@ -28,7 +28,6 @@ class Environments:
         self.stage = STAGE[os.environ.get("STAGE")]
 
         if self.stage == STAGE.test:
-            self.region = 'us-east-1'
             self.dynamo_table_name = 'local-dynamo-table'
         else:
             self.dynamo_table_name = os.environ.get("DYNAMO_TABLE_NAME")
