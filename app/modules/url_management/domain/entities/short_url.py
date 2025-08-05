@@ -14,6 +14,7 @@ class ShortUrl(ABC):
         self.code = code
         self.original_url = original_url
         self.created_at = datetime.now(timezone(timedelta(hours=-3)))
+        #  TODO: alterar o ttl para pegar o timestamp correto
         self.ttl = (int(time.time()) + ttl) if ttl is not None else None
 
     def to_dict(self):
