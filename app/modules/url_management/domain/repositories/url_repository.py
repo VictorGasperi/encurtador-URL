@@ -25,3 +25,4 @@ class IUrlRepository(ABC):
         '''
         Given the URL code, returns if it already exists
         '''
+    pass
