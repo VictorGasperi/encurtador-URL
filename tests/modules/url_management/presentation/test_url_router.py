@@ -48,4 +48,21 @@ class TestUrlRouter:
 
         body = response.json()
 
-        assert body['detail'] == f'The given URL \'\'\'\' is not valid.'
+        assert body['detail'] == "The given URL '' is not valid."
+
+    def test_redirect_route(self):
+        response = self.client.get("/url/redirect/abcdef", allow_redirects=False)
+        assert response.status_code == 307
+        assert response.headers["location"] == "https://example.com/page2"
+
+    def test_redirect_route_with_invalid_code(self):
+        response = self.client.get("/url/redirect/123456789", allow_redirects=False)
+        assert response.status_code == 422
+        err_body = response.json()
+        assert err_body['detail'] == "The given code '123456789' is not valid."
+
+    def test_redirect_route_with_invalid_code(self):
+        response = self.client.get("/url/redirect/fedcba", allow_redirects=False)
+        assert response.status_code == 404
+        err_body = response.json()
+        assert err_body['detail'] == "URL with code 'fedcba' not found."
