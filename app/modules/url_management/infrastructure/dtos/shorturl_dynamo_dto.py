@@ -23,5 +23,5 @@ class ShortUrlDynamoDTO():
             code=str(item['PK']).replace('URL#', ''),
             original_url=str(item['original_url']),
             created_at=datetime.fromisoformat(item['created_at']),
-            ttl=int(item.get('TTL'))
+            ttl=int(item.get('TTL')) if item.get('TTL') is not None else None
         )
