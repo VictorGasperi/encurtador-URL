@@ -23,7 +23,7 @@ class UrlRepositoryDynamo(IUrlRepository):
     
     def get_url(self, code: str) -> Optional[ShortUrl]:
         response = self.table.get_item(Key={'PK': f'URL#{code}'})
-        item = ShortUrlDynamoDTO.to_entity(response)
+        item = ShortUrlDynamoDTO.to_entity(response["Item"])
         if not item:
             return None
         return item

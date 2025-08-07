@@ -27,5 +27,6 @@ redirect_url_usecase = RedirectUrlUsecase(url_repository)
 redirect_url_handler = RedirectUrlHandler(redirect_url_usecase)
 @router.get("/redirect/{code}")
 async def redirect_url(code: str):
+    print(code)
     response = redirect_url_handler(code)
     return RedirectResponse(url=response)
